@@ -61,7 +61,7 @@ function dss_readspeaker_render() {
 		($dss_readspeaker_settings['on404'] && is_404())
 		) {
 		// Custom styles
-		if ($dss_readspeaker_settings['rsstyles'] { ?>
+		if ($dss_readspeaker_settings['rsstyles']) { ?>
 			<div id="readspeaker_button" class="rs_skip rsbtn_colorskin rs_preserve">
 			<a rel="nofollow" class="rsbtn_play" href="//app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 			<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsgrad"><span class="rsbtn_right rsplay rspart"></span></span>
