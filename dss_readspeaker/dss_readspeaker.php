@@ -39,7 +39,11 @@ function dss_readspeaker_enqueue_scripts() {
 	$dss_readspeaker_settings = get_option('dss_readspeaker_settings');
 	$region = $dss_readspeaker_settings['region'];
 	$customerid = $dss_readspeaker_settings['customerid'];
-	wp_enqueue_script('dss_readspeaker', '//f1-'.$region.'.readspeaker.com/script/'.$customerid.'/ReadSpeaker.js?pids=embhl', 'jquery', NULL );
+	$proto = 'http';
+	if (isset($_SERVER['HTTPS'])) {
+		if ($_SERVER['HTTPS'] != '') $proto = 'https';
+	}
+	wp_enqueue_script('dss_readspeaker', $proto.'://f1-'.$region.'.readspeaker.com/script/'.$customerid.'/ReadSpeaker.js?pids=embhl', 'jquery', NULL );
 	// Optionally load custom styles
 	if ($dss_readspeaker_settings['rsstyles']) {
 		wp_enqueue_script('dss_readspeaker_customjs', plugins_url('ReadSpeakerColorSkin.js', __FILE__));
@@ -51,6 +55,10 @@ function dss_readspeaker_enqueue_scripts() {
 add_filter('get_template_part_utils', 'dss_readspeaker_render');
 function dss_readspeaker_render() {
 	$dss_readspeaker_settings = get_option('dss_readspeaker_settings');
+	$proto = 'http';
+	if (isset($_SERVER['HTTPS'])) {
+		if ($_SERVER['HTTPS'] != '') $proto = 'https';
+	}
 	if (
 		($dss_readspeaker_settings['onindex'] && is_home()) ||
 		($dss_readspeaker_settings['onfront'] && is_front_page()) ||
@@ -63,7 +71,7 @@ function dss_readspeaker_render() {
 		// Custom styles
 		if ($dss_readspeaker_settings['rsstyles']) { ?>
 			<div id="readspeaker_button" class="rs_skip rsbtn_colorskin rs_preserve">
-			<a rel="nofollow" class="rsbtn_play" href="//app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+			<a rel="nofollow" class="rsbtn_play" href="<?php echo $proto; ?>://app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 			<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsgrad"><span class="rsbtn_right rsplay rspart"></span></span>
 			</a>
 			</div>
@@ -71,7 +79,7 @@ function dss_readspeaker_render() {
 		// Else, Default Readspeaker code
 		else { ?>
 			<div id="readspeaker_button" class="rs_skip rsbtn rs_preserve">
-    	<a rel="nofollow" class="rsbtn_play" href="//app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    	<a rel="nofollow" class="rsbtn_play" href="<?php echo $proto; ?>://app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 			<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsbtn_right rsimg rsplay rspart"></span>
 			</a>
 			</div>
