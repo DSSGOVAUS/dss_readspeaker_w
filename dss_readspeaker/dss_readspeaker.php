@@ -3,7 +3,7 @@
 Plugin Name: DSS's ReadSpeaker
 Description: Adds a Readspeaker 'Listen' button to the top of specified pages. Intended for use with DSS's WordPress websites. Requires the utils.php template part to use as a hook.
 Author: Chris Lamb
-Version: 3.1
+Version: 4
 */
 
 // On Activate
@@ -13,8 +13,6 @@ function dss_readspeaker_activate() {
 	$dss_readspeaker_settings = array(
 		'customerid' => '5931',
 		'readid' => 'content',
-		'rslang' => 'en_au',
-		'region' => 'oc',
 		'onindex' => true,
 		'onfront' => false,
 		'onpage' => true,
@@ -22,7 +20,6 @@ function dss_readspeaker_activate() {
 		'onarchive' => true,
 		'onsearch' => true,
 		'on404' => false,
-		'rsstyles' => false,
 	);
 	add_option('dss_readspeaker_settings',$dss_readspeaker_settings);
 }
@@ -33,22 +30,17 @@ function dss_readspeaker_uninstall() {
 	delete_option('dss_readspeaker_settings');
 }
 
-// Register and Enqueue Styles and Scripts
+// Register and Enqueue Scripts
 add_action('wp_enqueue_scripts', 'dss_readspeaker_enqueue_scripts');
 function dss_readspeaker_enqueue_scripts() {
 	$dss_readspeaker_settings = get_option('dss_readspeaker_settings');
-	$region = $dss_readspeaker_settings['region'];
 	$customerid = $dss_readspeaker_settings['customerid'];
 	$proto = 'http';
 	if (isset($_SERVER['HTTPS'])) {
 		if ($_SERVER['HTTPS'] != '') $proto = 'https';
 	}
-	wp_enqueue_script('dss_readspeaker', $proto.'://f1-'.$region.'.readspeaker.com/script/'.$customerid.'/ReadSpeaker.js?pids=embhl', 'jquery', NULL );
-	// Optionally load custom styles
-	if ($dss_readspeaker_settings['rsstyles']) {
-		wp_enqueue_script('dss_readspeaker_customjs', plugins_url('ReadSpeakerColorSkin.js', __FILE__));
-		wp_enqueue_style('dss_readspeaker_customcss', plugins_url('ReadSpeakerColorSkin.css', __FILE__));
-	}
+	wp_enqueue_script('dss_readspeaker', $proto.'://cdn1.readspeaker.com/script/'.$customerid.'/webReader/webReader.js?pids=wr&notools=1', 'jquery', NULL );
+	wp_enqueue_script('dss_readspeaker_conf', plugin_dir_url(__FILE__).'rsconf.js');
 }
 
 // Filter into the utils template part
@@ -67,23 +59,13 @@ function dss_readspeaker_render() {
 		($dss_readspeaker_settings['onarchive'] && is_archive()) ||
 		($dss_readspeaker_settings['onsearch'] && is_search()) ||
 		($dss_readspeaker_settings['on404'] && is_404())
-		) {
-		// Custom styles
-		if ($dss_readspeaker_settings['rsstyles']) { ?>
-			<div id="readspeaker_button" class="rs_skip rsbtn_colorskin rs_preserve">
-			<a rel="nofollow" class="rsbtn_play" href="<?php echo $proto; ?>://app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
-			<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsgrad"><span class="rsbtn_right rsplay rspart"></span></span>
-			</a>
-			</div>
-		<?php }
-		// Else, Default Readspeaker code
-		else { ?>
-			<div id="readspeaker_button" class="rs_skip rsbtn rs_preserve">
-    	<a rel="nofollow" class="rsbtn_play" href="<?php echo $proto; ?>://app-<?php echo $dss_readspeaker_settings['region']; ?>.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=<?php echo $dss_readspeaker_settings['rslang']; ?>&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
-			<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsbtn_right rsimg rsplay rspart"></span>
-			</a>
-			</div>
-<?php } } }
+		) { ?>
+		<div id="readspeaker_button" class="rs_skip rsbtn rs_preserve">
+    <a rel="nofollow" class="rsbtn_play" href="//app-oc.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=en_au&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+		<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsbtn_right rsimg rsplay rspart"></span>
+		</a>
+		</div>
+<?php } }
 
 // Create a menu link to the config page
 add_action('admin_menu','dss_readspeaker_admin_link');
@@ -100,8 +82,6 @@ function dss_readspeaker_page() {
 			$dss_readspeaker_settings = array(
 				'customerid' => isset($_POST['customerid']) ? $_POST['customerid'] : '',
 				'readid' => isset($_POST['readid']) ? $_POST['readid'] : 'content',
-				'rslang' => isset($_POST['rslang']) ? $_POST['rslang'] : 'en_au',
-				'region' => isset($_POST['region']) ? $_POST['region'] : 'oc',
 				'onindex' => isset($_POST['onindex']) ? true : false,
 				'onfront' => isset($_POST['onfront']) ? true : false,
 				'onpage' => isset($_POST['onpage']) ? true : false,
@@ -109,7 +89,6 @@ function dss_readspeaker_page() {
 				'onarchive' => isset($_POST['onarchive']) ? true : false,
 				'onsearch' => isset($_POST['onsearch']) ? true : false,
 				'on404' => isset($_POST['on404']) ? true : false,
-				'rsstyles' => isset($_POST['rsstyles']) ? true : false,
 			);
 			update_option('dss_readspeaker_settings',$dss_readspeaker_settings);
 			echo '<div class="updated"><p>Settings saved</p></div>';
@@ -128,12 +107,6 @@ function dss_readspeaker_page() {
 	<p><label for="readid">Read ID:</label>
 	<input type="text" name="readid" id="readid" value="<?php echo $dss_readspeaker_settings['readid']; ?>" />
     <small>The ID of the page element to be read</small></p>
-	<p><label for="rslang">Language:</label>
-	<input maxlength="5" size="5" type="text" name="rslang" id="rslang" value="<?php echo $dss_readspeaker_settings['rslang']; ?>" />
-    <small>Document language</small></p>
-	<p><label for="region">Region:</label>
-	<input maxlength="2" size="2" type="text" name="region" id="region" value="<?php echo $dss_readspeaker_settings['region']; ?>" />
-    <small> ReadSpeaker Region</small></p>
 	</fieldset>
 	<fieldset><legend>Template parts to display on</legend>
 	<p><input id="onindex" type="checkbox" name="onindex" <?php if ($dss_readspeaker_settings['onindex']) echo ' checked="checked"'; ?> />
@@ -151,10 +124,6 @@ function dss_readspeaker_page() {
 	<input id="on404" type="checkbox" name="on404" <?php if ($dss_readspeaker_settings['on404']) echo ' checked="checked"'; ?> />
     <label for="on404">404 page</label><small>404.php</small>
     </p>
-	</fieldset>
-	<fieldset><legend>Advanced</legend>
-	<p><input id="rsstyles" type="checkbox" name="rsstyles" <?php if ($dss_readspeaker_settings['rsstyles']) echo ' checked="checked"'; ?> />
-    <label for="rsstyles">Use custom styles</label><small>Uncheck to use ReadSpeaker's default styles</small></p>
 	</fieldset>
 	<p><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></p>
 	</form>
