@@ -13,6 +13,7 @@ function dss_readspeaker_activate() {
 	$dss_readspeaker_settings = array(
 		'customerid' => '5931',
 		'readid' => 'content',
+		'popupplayer' => true,
 		'onindex' => true,
 		'onfront' => false,
 		'onpage' => true,
