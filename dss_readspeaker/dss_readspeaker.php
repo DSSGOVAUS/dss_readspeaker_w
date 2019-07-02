@@ -37,10 +37,16 @@ function dss_readspeaker_enqueue_scripts() {
 	$dss_readspeaker_settings = get_option('dss_readspeaker_settings');
 	$customerid = $dss_readspeaker_settings['customerid'];
 	$proto = 'http';
+	$params = 'pids=wr&notools=1';
+	
 	if (isset($_SERVER['HTTPS'])) {
 		if ($_SERVER['HTTPS'] != '') $proto = 'https';
 	}
-	wp_enqueue_script('dss_readspeaker', $proto.'://cdn1.readspeaker.com/script/'.$customerid.'/webReader/webReader.js?pids=wr&notools=1', 'jquery', NULL );
+
+	if ($dss_readspeaker_settings['popupplayer'] == false) {
+		$params = $params.'&disable=popupplayback';
+	}
+	wp_enqueue_script('dss_readspeaker', $proto.'://cdn1.readspeaker.com/script/'.$customerid.'/webReader/webReader.js?'.$params, 'jquery', NULL );
 	wp_enqueue_script('dss_readspeaker_conf', plugin_dir_url(__FILE__).'rsconf.js');
 }
 
@@ -83,6 +89,7 @@ function dss_readspeaker_page() {
 			$dss_readspeaker_settings = array(
 				'customerid' => isset($_POST['customerid']) ? $_POST['customerid'] : '',
 				'readid' => isset($_POST['readid']) ? $_POST['readid'] : 'content',
+				'popupplayer' => isset($_POST['popupplayer']) ? true : false,
 				'onindex' => isset($_POST['onindex']) ? true : false,
 				'onfront' => isset($_POST['onfront']) ? true : false,
 				'onpage' => isset($_POST['onpage']) ? true : false,
@@ -95,52 +102,67 @@ function dss_readspeaker_page() {
 			echo '<div class="updated"><p>Settings saved</p></div>';
 		}
 	} // End form processing ?>
-	<div class="wrap">
+	<div class="wrap"> 
     <h2>ReadSpeaker Settings</h2>
 	<form action="#" method="post" id="fr_form">
 	<?php wp_nonce_field('dss_readspeaker_form'); ?>
 	<?php $dss_readspeaker_settings = get_option('dss_readspeaker_settings'); ?>
 	<input type="hidden" name="action" value="update" />
 	<fieldset><legend>General options</legend>
-	<p><label for="customerid">Customer ID:</label>
-	<input maxlength="4" size="4" type="text" name="customerid" id="customerid" value="<?php echo $dss_readspeaker_settings['customerid']; ?>" />
-    <small>Your ReadSpeaker Cutomer ID</small></p>
-	<p><label for="readid">Read ID:</label>
-	<input type="text" name="readid" id="readid" value="<?php echo $dss_readspeaker_settings['readid']; ?>" />
-    <small>The ID of the page element to be read</small></p>
+	<p>
+		<label for="customerid">Customer ID:</label>
+		<input maxlength="4" size="4" type="text" name="customerid" id="customerid" value="<?php echo $dss_readspeaker_settings['customerid']; ?>" />
+		<small>Your ReadSpeaker Cutomer ID</small>
+	</p>
+	<p>
+		<label for="readid">Read ID:</label>
+		<input type="text" name="readid" id="readid" value="<?php echo $dss_readspeaker_settings['readid']; ?>" />
+		<small>The ID of the page element to be read</small>
+	</p>
+	<p>
+		<label for="popupplayer">Show pop-up player on highlighted text? </label>
+		<input id="popupplayer" type="checkbox" name="popupplayer" <?php if ($dss_readspeaker_settings['popupplayer']) echo ' checked="checked"'; ?> />
+	</p>
 	</fieldset>
 	<fieldset><legend>Template parts to display on</legend>
-	<p><input id="onindex" type="checkbox" name="onindex" <?php if ($dss_readspeaker_settings['onindex']) echo ' checked="checked"'; ?> />
-    <label for="onindex">Blog index</label><small>index.php</small><br />
-	<input id="onfront" type="checkbox" name="onfront" <?php if ($dss_readspeaker_settings['onfront']) echo ' checked="checked"'; ?> />
-    <label for="onfront">Front page</label><small>front-page.php</small><br />
-	<input id="onsingle" type="checkbox" name="onsingle" <?php if ($dss_readspeaker_settings['onsingle']) echo ' checked="checked"'; ?> />
-    <label for="onsingle">Single</label><small>single.php</small><br />
-	<input id="onpage" type="checkbox" name="onpage" <?php if ($dss_readspeaker_settings['onpage']) echo ' checked="checked"'; ?> />
-    <label for="onpage">Page</label><small>page.php</small><br />
-    <input id="onarchive" type="checkbox" name="onarchive" <?php if ($dss_readspeaker_settings['onarchive']) echo ' checked="checked"'; ?> />
-    <label for="onarchive">Archives</label><small>archive.php</small><br />
-    <input id="onsearch" type="checkbox" name="onsearch" <?php if ($dss_readspeaker_settings['onsearch']) echo ' checked="checked"'; ?> />
-    <label for="onsearch">Search results</label><small>search.php</small><br />
-	<input id="on404" type="checkbox" name="on404" <?php if ($dss_readspeaker_settings['on404']) echo ' checked="checked"'; ?> />
-    <label for="on404">404 page</label><small>404.php</small>
-    </p>
+		<p>
+			<input id="onindex" type="checkbox" name="onindex" <?php if ($dss_readspeaker_settings['onindex']) echo ' checked="checked"'; ?> />
+			<label for="onindex">Blog index</label><small>index.php</small><br />
+			
+			<input id="onfront" type="checkbox" name="onfront" <?php if ($dss_readspeaker_settings['onfront']) echo ' checked="checked"'; ?> />
+			<label for="onfront">Front page</label><small>front-page.php</small><br />
+
+			<input id="onsingle" type="checkbox" name="onsingle" <?php if ($dss_readspeaker_settings['onsingle']) echo ' checked="checked"'; ?> />
+			<label for="onsingle">Single</label><small>single.php</small><br />
+			
+			<input id="onpage" type="checkbox" name="onpage" <?php if ($dss_readspeaker_settings['onpage']) echo ' checked="checked"'; ?> />
+			<label for="onpage">Page</label><small>page.php</small><br />
+			
+			<input id="onarchive" type="checkbox" name="onarchive" <?php if ($dss_readspeaker_settings['onarchive']) echo ' checked="checked"'; ?> />
+			<label for="onarchive">Archives</label><small>archive.php</small><br />
+
+			<input id="onsearch" type="checkbox" name="onsearch" <?php if ($dss_readspeaker_settings['onsearch']) echo ' checked="checked"'; ?> />
+			<label for="onsearch">Search results</label><small>search.php</small><br />
+
+			<input id="on404" type="checkbox" name="on404" <?php if ($dss_readspeaker_settings['on404']) echo ' checked="checked"'; ?> />
+			<label for="on404">404 page</label><small>404.php</small>
+	    </p>
 	</fieldset>
 	<p><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></p>
 	</form>
 	<?php // Help text if missing the utils.php template part
 	if (!locate_template('utils.php')) { ?>
     	<div class="error">
-		 <h3>Please ensure that your theme includes a utils.php template part:</h3>
-         <p>This plugin won't work without one. Follow these steps:</p>
-         <ol>
-         <li>Create a new file within your theme dirctory, called 'utils.php'. Open it in a text editor and insert the following code:<br />
-         <code>&lt;?php // An empty template part: used as a hook point for the filter 'get_template_part_utils' ?&gt;</code>
-         </li>
-         <li>Edit your themes header.php file and (in an appropriate position) insert the following code:<br /><code>&lt;?php get_template_part('utils'); ?&gt;</code>
-         </li>
-         <li>Reload this page. This message should disappear.</li>
-         </ol>
+			<h3>Please ensure that your theme includes a utils.php template part:</h3>
+			<p>This plugin won't work without one. Follow these steps:</p>
+			<ol>
+				<li>Create a new file within your theme dirctory, called 'utils.php'. Open it in a text editor and insert the following code:<br />
+				<code>&lt;?php // An empty template part: used as a hook point for the filter 'get_template_part_utils' ?&gt;</code>
+				</li>
+				<li>Edit your themes header.php file and (in an appropriate position) insert the following code:<br /><code>&lt;?php get_template_part('utils'); ?&gt;</code>
+				</li>
+				<li>Reload this page. This message should disappear.</li>
+			</ol>
     	</div>
 	<?php } ?>
 	<style>
