@@ -38,7 +38,7 @@ function dss_readspeaker_enqueue_scripts() {
 	$customerid = $dss_readspeaker_settings['customerid'];
 	$proto = 'http';
 	$params = 'pids=wr&notools=1';
-	
+
 	if (isset($_SERVER['HTTPS'])) {
 		if ($_SERVER['HTTPS'] != '') $proto = 'https';
 	}
@@ -58,6 +58,7 @@ function dss_readspeaker_render() {
 	if (isset($_SERVER['HTTPS'])) {
 		if ($_SERVER['HTTPS'] != '') $proto = 'https';
 	}
+	$readurl = htmlspecialchars(strip_tags($proto . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']));
 	if (
 		($dss_readspeaker_settings['onindex'] && is_home()) ||
 		($dss_readspeaker_settings['onfront'] && is_front_page()) ||
@@ -68,7 +69,7 @@ function dss_readspeaker_render() {
 		($dss_readspeaker_settings['on404'] && is_404())
 		) { ?>
 		<div id="readspeaker_button" class="rs_skip rsbtn rs_preserve">
-    <a rel="nofollow" class="rsbtn_play" href="//app-oc.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=en_au&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $proto; ?>://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <a rel="nofollow" class="rsbtn_play" href="//app-oc.readspeaker.com/cgi-bin/rsent?customerid=<?php echo $dss_readspeaker_settings['customerid']; ?>&amp;lang=en_au&amp;readid=<?php echo $dss_readspeaker_settings['readid']; ?>&amp;url=<?php echo $readurl ?>">
 		<span class="rsbtn_left rspart rsimg"><span class="rsbtn_text"><span>Listen</span></span></span><span class="rsbtn_right rsimg rsplay rspart"></span>
 		</a>
 		</div>
@@ -102,7 +103,7 @@ function dss_readspeaker_page() {
 			echo '<div class="updated"><p>Settings saved</p></div>';
 		}
 	} // End form processing ?>
-	<div class="wrap"> 
+	<div class="wrap">
     <h2>ReadSpeaker Settings</h2>
 	<form action="#" method="post" id="fr_form">
 	<?php wp_nonce_field('dss_readspeaker_form'); ?>
@@ -128,16 +129,16 @@ function dss_readspeaker_page() {
 		<p>
 			<input id="onindex" type="checkbox" name="onindex" <?php if ($dss_readspeaker_settings['onindex']) echo ' checked="checked"'; ?> />
 			<label for="onindex">Blog index</label><small>index.php</small><br />
-			
+
 			<input id="onfront" type="checkbox" name="onfront" <?php if ($dss_readspeaker_settings['onfront']) echo ' checked="checked"'; ?> />
 			<label for="onfront">Front page</label><small>front-page.php</small><br />
 
 			<input id="onsingle" type="checkbox" name="onsingle" <?php if ($dss_readspeaker_settings['onsingle']) echo ' checked="checked"'; ?> />
 			<label for="onsingle">Single</label><small>single.php</small><br />
-			
+
 			<input id="onpage" type="checkbox" name="onpage" <?php if ($dss_readspeaker_settings['onpage']) echo ' checked="checked"'; ?> />
 			<label for="onpage">Page</label><small>page.php</small><br />
-			
+
 			<input id="onarchive" type="checkbox" name="onarchive" <?php if ($dss_readspeaker_settings['onarchive']) echo ' checked="checked"'; ?> />
 			<label for="onarchive">Archives</label><small>archive.php</small><br />
 
